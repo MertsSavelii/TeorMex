@@ -67,7 +67,7 @@ detA2 = a11*b2-b1*a21
 dVdt = detA1/detA
 domdt = detA2/detA
 
-countOfFrames = 2000
+countOfFrames = 1700
 
 # Constructing the system of differential equations
 T = np.linspace(0, 25, countOfFrames)
@@ -98,8 +98,8 @@ Vphi = sol[:,2]
 Vpsi = sol[:,3]
 
 w = np.linspace(0, 2 * math.pi, countOfFrames)
-conline, = ax1.plot([sp.sin(2*psi[0]) * R * sp.cos(phi[0]), 0], [-1, R], 'black')
-P, = ax1.plot(sp.sin(2*psi[0]) * R * sp.cos(phi[0]), sp.cos(2*psi[0]) * R, marker='o', color='black')
+conline, = ax1.plot([sp.sin(2*psi[0]) * R * sp.cos(phi[0]), 0], [-sp.cos(2*psi[0]) * R, R], 'black')
+P, = ax1.plot(sp.sin(2*psi[0]) * R * sp.cos(phi[0]), -sp.cos(2*psi[0]) * R, marker='o', color='black')
 Circ, = ax1.plot(R * sp.cos(phi[0]) * np.cos(w), R * np.sin(w), 'black')
 
 #Доп графики
@@ -113,8 +113,8 @@ ax3.set_xlabel('T')
 ax3.set_ylabel('Vpsi')
 
 def anima(i):
-    P.set_data(sp.sin(2*psi[i]) * R * sp.cos(phi[i]), sp.cos(2*psi[i]) * R)
-    conline.set_data([sp.sin(2*psi[i]) * R * sp.cos(phi[i]), 0], [sp.cos(2*psi[i]) * R, R])
+    P.set_data(sp.sin(2*psi[i]) * R * sp.cos(phi[i]), -sp.cos(2*psi[i]) * R)
+    conline.set_data([sp.sin(2*psi[i]) * R * sp.cos(phi[i]), 0], [-sp.cos(2*psi[i]) * R, R])
     Circ.set_data(R * sp.cos(phi[i]) * np.cos(w), R * np.sin(w))
     return Circ, P, conline
 
