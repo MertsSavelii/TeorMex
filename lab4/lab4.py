@@ -10,6 +10,11 @@ def formY(y, t, fV, fOm):
     dydt = [y3,y4,fV(y1,y2,y3,y4),fOm(y1,y2,y3,y4)]
     return dydt
 
+def formY2(y, t, fOm):
+    y1,y2 = y
+    dydt = [y2,fOm(y1,y2)]
+    return dydt
+
 # defining parameters
 # the angle of the plane (and the prism)
 alpha = math.pi / 6
@@ -17,16 +22,16 @@ M = 1
 m = 0.1
 R = 0.3
 c = 20
-l0 = 0.2
+l0 = 0.1
 g = 9.81
 
 # defining t as a symbol (it will be the independent variable)
 t = sp.Symbol('t')
 
 # defining s, phi, V=ds/dt and om=dphi/dt as functions of 't'
-phi=sp.Function('phi')(t)
+phi=0
 psi=sp.Function('psi')(t)
-Vphi=sp.Function('Vphi')(t)
+Vphi=0
 Vpsi=sp.Function('Vpsi')(t)
 
 l = 2 * R * sp.cos(phi)  # длина пружины
@@ -49,34 +54,33 @@ M = alpha * phi**2;
 L = TT-Pi
 
 # equations
-ur1 = sp.diff(sp.diff(L,Vphi),t)-sp.diff(L,phi) - M
+#ur1 = sp.diff(sp.diff(L,Vphi),t)-sp.diff(L,phi) - M
 ur2 = sp.diff(sp.diff(L,Vpsi),t)-sp.diff(L,psi)
 
 # isolating second derivatives(dV/dt and dom/dt) using Kramer's method
-a11 = ur1.coeff(sp.diff(Vphi,t),1)
-a12 = ur1.coeff(sp.diff(Vpsi,t),1)
-a21 = ur2.coeff(sp.diff(Vphi,t),1)
+# a11 = ur1.coeff(sp.diff(Vphi,t),1)
+# a12 = ur1.coeff(sp.diff(Vpsi,t),1)
+# a21 = ur2.coeff(sp.diff(Vphi,t),1)
 a22 = ur2.coeff(sp.diff(Vpsi,t),1)
-b1 = -(ur1.coeff(sp.diff(Vphi,t),0)).coeff(sp.diff(Vpsi,t),0).subs([(sp.diff(phi,t),Vphi), (sp.diff(psi,t), Vpsi)])
-b2 = -(ur2.coeff(sp.diff(Vphi,t),0)).coeff(sp.diff(Vpsi,t),0).subs([(sp.diff(phi,t),Vphi), (sp.diff(psi,t), Vpsi)])
+#b1 = -(ur1.coeff(sp.diff(Vphi,t),0)).coeff(sp.diff(Vpsi,t),0).subs([(sp.diff(phi,t),Vphi), (sp.diff(psi,t), Vpsi)])
+b2 = -ur2.coeff(sp.diff(Vpsi,t),0).subs(sp.diff(phi,t), Vpsi);
+# detA = a11*a22-a12*a21
+# detA1 = b1*a22-b2*a21
+# detA2 = a11*b2-b1*a21
+#
+# dVdt = detA1/detA
+domdt = b2/a22
 
-detA = a11*a22-a12*a21
-detA1 = b1*a22-b2*a21
-detA2 = a11*b2-b1*a21
-
-dVdt = detA1/detA
-domdt = detA2/detA
-
-countOfFrames = 2500
+countOfFrames = 1700
 
 # Constructing the system of differential equations
 T = np.linspace(0, 25, countOfFrames)
 # Pay attention here, the function lambdify translate function from the sympy to numpy and then form arrays much more
 # faster then we did using subs in previous lessons!
-fVphi = sp.lambdify([phi,psi,Vphi,Vpsi], dVdt, "numpy")
-fVpsi = sp.lambdify([phi,psi,Vphi,Vpsi], domdt, "numpy")
-y0 = [0, np.pi/6, -0.5, 0]
-sol = odeint(formY, y0, T, args = (fVphi, fVpsi))
+#fVphi = sp.lambdify([phi,psi,Vphi,Vpsi], dVdt, "numpy")
+fVpsi = sp.lambdify([psi,Vpsi], domdt, "numpy")
+y0 = [np.pi/6, 0]
+sol = odeint(formY2, y0, T, args = (fVpsi,))
 
 #sol - our solution
 #sol[:,0] - phi
@@ -89,30 +93,30 @@ fig = plt.figure(figsize=(17, 8))
 ax1 = fig.add_subplot(1, 2, 1)
 ax1.axis('equal')
 
-phi = sol[:,0]
-psi = sol[:,1]
-Vphi = sol[:,2]
-Vpsi = sol[:,3]
+phi = 0
+psi = sol[:,0]
+# Vphi = sol[:,2]
+Vpsi = sol[:,1]
 
 w = np.linspace(0, 2 * math.pi, countOfFrames)
-conline, = ax1.plot([sp.sin(2*psi[0]) * R * sp.cos(phi[0]), 0], [-sp.cos(2*psi[0]) * R, R], 'black')
-P, = ax1.plot(sp.sin(2*psi[0]) * R * sp.cos(phi[0]), -sp.cos(2*psi[0]) * R, marker='o', color='black')
-Circ, = ax1.plot(R * sp.cos(phi[0]) * np.cos(w), R * np.sin(w), 'black')
+conline, = ax1.plot([sp.sin(2*psi[0]) * R * sp.cos(phi), 0], [-sp.cos(2*psi[0]) * R, R], 'black')
+P, = ax1.plot(sp.sin(2*psi[0]) * R * sp.cos(phi), -sp.cos(2*psi[0]) * R, marker='o', color='black')
+Circ, = ax1.plot(R * sp.cos(phi) * np.cos(w), R * np.sin(w), 'black')
 
 #Доп графики
 ax2 = fig.add_subplot(4, 2, 2)
-ax2.plot(T, Vphi)
+ax2.plot(T, psi)
 ax2.set_xlabel('T')
-ax2.set_ylabel('Vphi')
+ax2.set_ylabel('psi')
 ax3 = fig.add_subplot(4, 2, 4)
 ax3.plot(T, Vpsi)
 ax3.set_xlabel('T')
 ax3.set_ylabel('Vpsi')
 
 def anima(i):
-    P.set_data(sp.sin(2*psi[i]) * R * sp.cos(phi[i]), -sp.cos(2*psi[i]) * R)
-    conline.set_data([sp.sin(2*psi[i]) * R * sp.cos(phi[i]), 0], [-sp.cos(2*psi[i]) * R, R])
-    Circ.set_data(R * sp.cos(phi[i]) * np.cos(w), R * np.sin(w))
+    P.set_data(sp.sin(2*psi[i]) * R * sp.cos(phi), -sp.cos(2*psi[i]) * R)
+    conline.set_data([sp.sin(2*psi[i]) * R * sp.cos(phi), 0], [-sp.cos(2*psi[i]) * R, R])
+    Circ.set_data(R * sp.cos(phi) * np.cos(w), R * np.sin(w))
     return Circ, P, conline
 
 anim = FuncAnimation(fig, anima, frames=countOfFrames, interval=1, blit=True)
