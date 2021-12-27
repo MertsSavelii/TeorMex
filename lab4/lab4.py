@@ -17,12 +17,12 @@ def formY2(y, t, fOm):
 
 # defining parameters
 # the angle of the plane (and the prism)
-alpha = math.pi / 6
+alpha = 0.002
 M = 1
 m = 0.1
 R = 0.3
 c = 20
-l0 = 0.1
+l0 = 0.7
 g = 9.81
 
 # defining t as a symbol (it will be the independent variable)
@@ -34,7 +34,7 @@ psi=sp.Function('psi')(t)
 Vphi=0
 Vpsi=sp.Function('Vpsi')(t)
 
-l = 2 * R * sp.cos(phi)  # длина пружины
+l = 2 * R * sp.cos(psi)  # длина пружины
 #constructing the Lagrange equations
 #1 defining the kinetic energy
 TT1 = M * R**2 * Vphi**2 / 4
@@ -53,6 +53,18 @@ M = alpha * phi**2;
 # Lagrange function
 L = TT-Pi
 
+# тут исследую положения устойчивости при л0 = 0.3
+PI = -1*R*sp.cos(2*psi)*m*g + (c/2)*(2*R*sp.cos(psi)-l0)*(2*R*sp.cos(psi)-l0)
+print(sp.diff(PI,t))
+PI1 = -6.0*(0.6*sp.cos(psi) - 0.502)*sp.sin(psi) - 0.6*(6.0*sp.cos(psi) - 0.502)*sp.sin(psi) + 0.5886*sp.sin(2*psi)#первая производная ПИ
+print(sp.diff(PI1,t))
+PI2 = (0.3012 - 3.6*sp.cos(0))*sp.cos(0) + (3.012 - 3.6*sp.cos(0))*sp.cos(0) + 7.2*sp.sin(0)**2 + 1.1772*sp.cos(2*0)# вторая производная ПИ
+print(PI2)
+
+# тут уже проверка устойчивости при пси = 0 и л = 0.7
+print(sp.diff(sp.diff(PI, t), t))
+pi2 = (4.2 - 3.6*sp.cos(0))*sp.sin(0) + (4.2 - 3.6*sp.cos(0))*sp.cos(0) + (4.2 - 3.6*sp.cos(0))*sp.sin(0) + (4.2 - 3.6*sp.cos(0))*sp.cos(0) + 7.2*sp.sin(0)**2 + 0.5886*sp.sin(2*0) + 1.1772*sp.cos(2*0)
+print(pi2)
 # equations
 #ur1 = sp.diff(sp.diff(L,Vphi),t)-sp.diff(L,phi) - M
 ur2 = sp.diff(sp.diff(L,Vpsi),t)-sp.diff(L,psi)

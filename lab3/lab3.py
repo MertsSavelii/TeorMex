@@ -12,12 +12,12 @@ def formY(y, t, fV, fOm):
 
 # defining parameters
 # the angle of the plane (and the prism)
-alpha = math.pi / 6
+alpha = 0.002
 M = 1
 m = 0.1
 R = 0.3
 c = 20
-l0 = 0.2
+l0 = 0.3
 g = 9.81
 
 # defining t as a symbol (it will be the independent variable)
@@ -29,7 +29,7 @@ psi=sp.Function('psi')(t)
 Vphi=sp.Function('Vphi')(t)
 Vpsi=sp.Function('Vpsi')(t)
 
-l = 2 * R * sp.cos(phi)  # длина пружины
+l = 2 * R * sp.cos(psi)  # длина пружины
 #constructing the Lagrange equations
 #1 defining the kinetic energy
 TT1 = M * R**2 * Vphi**2 / 4
@@ -67,10 +67,10 @@ detA2 = a11*b2-b1*a21
 dVdt = detA1/detA
 domdt = detA2/detA
 
-countOfFrames = 2500
+countOfFrames = 1700
 
 # Constructing the system of differential equations
-T = np.linspace(0, 25, countOfFrames)
+T = np.linspace(0, 20, countOfFrames)
 # Pay attention here, the function lambdify translate function from the sympy to numpy and then form arrays much more
 # faster then we did using subs in previous lessons!
 fVphi = sp.lambdify([phi,psi,Vphi,Vpsi], dVdt, "numpy")
